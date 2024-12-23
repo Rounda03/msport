@@ -28,8 +28,10 @@ function App() {
     return (
         <BrowserRouter>
             <Routes>
+                {/*로그인전*/}
                 <Route path="/login" element={!session ? <LoginPage /> : <Navigate to="/sample" replace />} />
                 <Route path="/signup" element={!session ? <SignUpPage /> : <Navigate to="/sample" replace />} />
+                {/*로그인후*/}
                 <Route path="/sample" element={
                     session ? (
                         <HeaderLayout userId={session.user.email || ''}>
@@ -39,7 +41,6 @@ function App() {
                         <Navigate to="/login" replace />
                     )
                 } />
-                <Route path="/" element={<Navigate to={session ? "/sample" : "/login"} replace />} />
             </Routes>
         </BrowserRouter>
     );
