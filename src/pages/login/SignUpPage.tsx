@@ -6,6 +6,7 @@ import '../../index.css';
 const SignUpPage: React.FC = () => {
     const [email, setEmail] = useState<string>('');
     const [name, setName] = useState<string>('');
+    const [nickname, setNickname] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [confirmPassword, setConfirmPassword] = useState<string>('');
     const navigate = useNavigate();
@@ -25,6 +26,7 @@ const SignUpPage: React.FC = () => {
                 options: {
                     data: {
                         name: name,
+                        nickname: nickname,
                     }
                 }
             });
@@ -55,6 +57,13 @@ const SignUpPage: React.FC = () => {
                         placeholder="이름"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
+                        required
+                    />
+                    <input
+                        type="text"
+                        placeholder="닉네임"
+                        value={nickname}
+                        onChange={(e) => setNickname(e.target.value)}
                         required
                     />
                     <input
