@@ -111,9 +111,11 @@ const HeaderLayout: React.FC<HeaderLayoutProps> = ({ children, userId, userAvata
             </header>
             <Tabs value={value} onChange={handleChange} textColor="inherit" indicatorColor="secondary" style={{backgroundColor: '#f0f0f0'}}>
                 <Tab label="홈" />
-                <Tab label="자기소개서" />
+                <Tab label="자기소개서" onClick={() => handleMenuItemClick('/selfIntroduction')}/>
                 <Tab label="포트폴리오" />
+                <Tab label="프로젝트" />
                 <Tab label="사용기술" />
+                <Tab label="내 문서" />
                 <Tab label="커뮤니티" />
             </Tabs>
             <main className="main-content">{children}</main>

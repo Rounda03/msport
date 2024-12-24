@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import supabase  from '../../supabaseClient';
 import '../../index.css';
+import {checkEmailDuplicate, checkNicknameDuplicate} from "../../supabaseutils/userUtils";
+import {Button, Grid, TextField} from "@mui/material";
 
 const SignUpPage: React.FC = () => {
     const [email, setEmail] = useState<string>('');
     const [name, setName] = useState<string>('');
     const [nickname, setNickname] = useState<string>('');
     const [password, setPassword] = useState<string>('');
+    const [phoneNumber, setPhoneNumber] = useState<string>('');
     const [confirmPassword, setConfirmPassword] = useState<string>('');
     const navigate = useNavigate();
 
@@ -27,6 +30,7 @@ const SignUpPage: React.FC = () => {
                     data: {
                         name: name,
                         nickname: nickname,
+                        phonenumber: phoneNumber || undefined,
                     }
                 }
             });
@@ -45,42 +49,77 @@ const SignUpPage: React.FC = () => {
             <div className="signup-card">
                 <h2>Create an Account</h2>
                 <form onSubmit={handleSignUp}>
-                    <input
-                        type="email"
-                        placeholder="이메일"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
-                    <input
-                        type="text"
-                        placeholder="이름"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                    />
-                    <input
-                        type="text"
-                        placeholder="닉네임"
-                        value={nickname}
-                        onChange={(e) => setNickname(e.target.value)}
-                        required
-                    />
-                    <input
-                        type="password"
-                        placeholder="비밀번호"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                    <input
-                        type="password"
-                        placeholder="비밀번호재확인"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
-                    />
-                    <button type="submit">가입하기</button>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} container alignItems="center">
+                            <Grid item xs>
+                                <TextField
+                                    fullWidth
+                                    type="email"
+                                    label="이메일"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                />
+                            </Grid>
+                            <Grid item>
+                                <Button onClick={() => checkEmailDuplicate(email)} sx={{ml: 2}}>중복확인</Button>
+                            </Grid>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                label="이름"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                required
+                            />
+                        </Grid>
+                        <Grid item xs={12} container alignItems="center">
+                            <Grid item xs>
+                                <TextField
+                                    fullWidth
+                                    label="닉네임"
+                                    value={nickname}
+                                    onChange={(e) => setNickname(e.target.value)}
+                                    required
+                                />
+                            </Grid>
+                            <Grid item>
+                                <Button onClick={() => checkNicknameDuplicate(nickname)} sx={{ml: 2}}>중복확인</Button>
+                            </Grid>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                label="전화번호"
+                                value={phoneNumber}
+                                onChange={(e) => setPhoneNumber(e.target.value)}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                type="password"
+                                label="비밀번호"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                type="password"
+                                label="비밀번호 재확인"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                required
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Button type="submit" variant="contained" fullWidth>가입하기</Button>
+                        </Grid>
+                    </Grid>
                 </form>
                 <p>
                     Already have an account?{' '}

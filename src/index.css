@@ -152,7 +152,7 @@ body {
 
 .signup-card {
   background-color: #ffffff;
-  width: 320px;
+  width: 450px;
   padding: 30px;
   border-radius: 10px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
@@ -171,20 +171,6 @@ body {
   border: 1px solid #ddd;
   border-radius: 5px;
   width: 100%;
-}
-
-.signup-card button {
-  padding: 12px;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  width: 100%;
-}
-
-.signup-card button:hover {
-  background-color: #218838;
 }
 
 .login-link {

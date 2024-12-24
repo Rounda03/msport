@@ -6,6 +6,7 @@ import {
 } from '@mui/material';
 import { User } from "@supabase/supabase-js";
 import supabase from "../../supabaseClient";
+import { checkNicknameDuplicate } from '../../supabaseutils/userUtils';
 
 interface AccountInfoProps {
     userData?: User;
@@ -20,9 +21,17 @@ const AccountInfo: React.FC<AccountInfoProps> = ({ userData }) => {
     const [userInfo, setUserInfo] = useState({
         nickname: userData?.user_metadata.nickname || '',
         phone: userData?.user_metadata.phone || '',
+        geusttoken: userData?.user_metadata.guest_token || ''
     });
+    const [password, setPassword] = useState('');
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmNewPassword, setConfirmNewPassword] = useState('');
     const [newNickname, setNewNickname] = useState('');
+    const [newPhoneNumber, setNewPhoneNumber] = useState('');
     const [isNicknameChecked, setIsNicknameChecked] = useState(false);
+
+
     const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
         if (newValue === 1 && !openSecurityCheckDialog) {
             setOpenSecurityCheckDialog(true);
@@ -34,29 +43,68 @@ const AccountInfo: React.FC<AccountInfoProps> = ({ userData }) => {
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setUserInfo({ ...userInfo, [e.target.name]: e.target.value });
     };
-    const checkNicknameDuplicate = async () => {
-        try {
-            const { data, error } = await supabase
-                .rpc('check_nickname_exists', { nickname: newNickname });
+    const handleCheckNickname = async () => {
 
-            if (error) {
-                throw error;
-            }
+        const isAvailable = await checkNicknameDuplicate(newNickname);
+        setIsNicknameChecked(isAvailable);
+        if (isAvailable) {
+                        setIsNicknameChecked(false);
+                        return false;
+                    } else {
+                        setIsNicknameChecked(true);
+                        return true;
+                    }
+    };
 
-            if (data) {
-                alert('이미 사용 중인 닉네임입니다.');
-                setIsNicknameChecked(false);
-                return false;
-            } else {
-                alert('사용 가능한 닉네임입니다.');
-                setIsNicknameChecked(true);
-                return true;
-            }
-        } catch (error) {
-            console.error('닉네임 중복 확인 중 오류 발생:', error);
-            alert('닉네임 중복 확인 중 오류가 발생했습니다.');
-            return false;
+    // const checkNicknameDuplicate = async () => {
+    //     try {
+    //         const { data, error } = await supabase
+    //             .rpc('check_nickname_exists', { nickname: newNickname });
+    //
+    //         if (error) {
+    //             throw error;
+    //         }
+    //
+    //         if (data) {
+    //             alert('이미 사용 중인 닉네임입니다.');
+    //             setIsNicknameChecked(false);
+    //             return false;
+    //         } else {
+    //             alert('사용 가능한 닉네임입니다.');
+    //             setIsNicknameChecked(true);
+    //             return true;
+    //         }
+    //     } catch (error) {
+    //         console.error('닉네임 중복 확인 중 오류 발생:', error);
+    //         alert('닉네임 중복 확인 중 오류가 발생했습니다.');
+    //         return false;
+    //     }
+    // };
+    //게스트토큰발급
+    const duplicateCheckToken = async (token: String):Promise<boolean> => {
+        const { data, error } = await supabase.rpc('check_guest_token_exists', { token: token });
+        return data;
+    }
+    const generateGuestToken = async (): Promise<string> => {
+
+        let token = Math.random().toString(36).substring(2, 10);
+        console.log('게스트토큰발급',token);
+
+        if(await duplicateCheckToken(token)){
+            alert('게스트토큰이 중복되었습니다. 다시 발급하십시오.');
         }
+
+        // Update the user's guest_token in the database
+        const { data , error} = await supabase.auth.updateUser({
+            data: { guest_token: token }
+        });
+        setUserInfo(prevState => ({
+            ...prevState,
+            guesttoken: token
+        }));
+        if (error) throw error;
+
+        return token;
     };
 
     const onNickChangeConfirm = async (nickname: string) => {
@@ -85,18 +133,73 @@ const AccountInfo: React.FC<AccountInfoProps> = ({ userData }) => {
         setNewNickname(e.target.value);
         setIsNicknameChecked(false);
     };
-    const handlePhoneChange = () => {
-        setOpenPhoneDialog(true);
+    const handlePhoneChange = async () => {
+        try {
+            const { data, error } = await supabase.auth.updateUser({
+                phone: newPhoneNumber
+            });
+
+            if (error) throw error;
+
+            setUserInfo(prevState => ({
+                ...prevState,
+                phone: newPhoneNumber
+            }));
+            alert('전화번호가 성공적으로 변경되었습니다.');
+            setOpenPhoneDialog(false);
+            setNewPhoneNumber('');
+        } catch (error) {
+            console.error('전화번호 변경 중 오류 발생:', error);
+            alert('전화번호 변경에 실패했습니다.');
+        }
     };
 
 
-    const handlePasswordChange = () => {
-        setOpenPasswordDialog(true);
+    const handlePasswordChange = async () => {
+        if (currentPassword !== userData?.user_metadata.password) {
+            alert('기존 비밀번호가 일치하지 않습니다.');
+            return;
+        }
+        if (newPassword !== confirmNewPassword) {
+            alert('새 비밀번호가 일치하지 않습니다.');
+            return;
+        }
+        try {
+            const { data, error } = await supabase.auth.updateUser({
+                password: newPassword
+            });
+
+            if (error) throw error;
+
+            alert('비밀번호가 성공적으로 변경되었습니다.');
+            setOpenPasswordDialog(false);
+            setCurrentPassword('');
+            setNewPassword('');
+            setConfirmNewPassword('');
+        } catch (error) {
+            console.error('비밀번호 변경 중 오류 발생:', error);
+            alert('비밀번호 변경에 실패했습니다.');
+        }
     };
 
-    const handleSecurityCheck = () => {
-        setOpenSecurityCheckDialog(false);
-        setActiveTab(1);
+    const handleSecurityCheck = async () => {
+        try {
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: userData?.email || '',
+                password: password
+            });
+
+            if (error) {
+                throw error;
+            }
+
+            // If successful, close the dialog and switch to the security tab
+            setOpenSecurityCheckDialog(false);
+            setActiveTab(1);
+        } catch (error) {
+            console.error('비밀번호 확인 중 오류 발생:', error);
+            alert('비밀번호가 올바르지 않습니다.');
+        }
     };
 
     return (
@@ -111,7 +214,7 @@ const AccountInfo: React.FC<AccountInfoProps> = ({ userData }) => {
                     <Button size="small" sx={{ mt: 1 }}>프로필 사진 변경</Button>
                 </Grid>
                 <Grid item xs>
-                    <Typography variant="h4">{userInfo.nickname || userData?.email}</Typography>
+                    <Typography variant="h4">{userData?.user_metadata.nickname || userData?.user_metadata.name}</Typography>
                     <Typography variant="body1">{userData?.email}</Typography>
                     <Typography variant="body2">
                         가입일: {userData?.created_at ? new Date(userData.created_at).toLocaleDateString() : '정보 없음'}
@@ -184,13 +287,24 @@ const AccountInfo: React.FC<AccountInfoProps> = ({ userData }) => {
                             <ListItem>
                                 <ListItemText primary="비밀번호 변경" />
                                 <ListItemSecondaryAction>
-                                    <Button variant="outlined" onClick={handlePasswordChange}>변경</Button>
+                                    <Button variant="outlined" onClick={()=>setOpenPasswordDialog(true)}>변경</Button>
                                 </ListItemSecondaryAction>
                             </ListItem>
                             <ListItem>
                                 <ListItemText primary="2단계 인증" secondary="계정 보안을 강화합니다" />
                                 <ListItemSecondaryAction>
                                     <Switch />
+                                </ListItemSecondaryAction>
+                            </ListItem>
+                            <ListItem>
+                                <ListItemText primary="게스트 토큰" secondary={userData?.user_metadata.guest_token} />
+                                <ListItemSecondaryAction>
+                                    <Button
+                                        variant="outlined"
+                                        onClick={() => generateGuestToken()}
+                                    >
+                                        {userData?.user_metadata?.guest_token ? "재발급" : "발급"}
+                                    </Button>
                                 </ListItemSecondaryAction>
                             </ListItem>
                         </List>
@@ -208,11 +322,12 @@ const AccountInfo: React.FC<AccountInfoProps> = ({ userData }) => {
                         type="tel"
                         fullWidth
                         variant="standard"
+                        onChange={(e) => setNewPhoneNumber(e.target.value)}
                     />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenPhoneDialog(false)}>취소</Button>
-                    <Button onClick={() => setOpenPhoneDialog(false)}>확인</Button>
+                    <Button onClick={() => handlePhoneChange()}>확인</Button>
                 </DialogActions>
             </Dialog>
 
@@ -229,7 +344,7 @@ const AccountInfo: React.FC<AccountInfoProps> = ({ userData }) => {
                             value={newNickname}
                             onChange={handleNicknameChange}
                         />
-                        <Button onClick={()=>checkNicknameDuplicate()} disabled={!newNickname}>
+                        <Button onClick={()=>handleCheckNickname()} disabled={!newNickname}>
                             중복 확인
                         </Button>
                     </Box>
@@ -250,6 +365,7 @@ const AccountInfo: React.FC<AccountInfoProps> = ({ userData }) => {
                         label="현재 비밀번호"
                         type="password"
                         fullWidth
+                        onChange={(e) => setCurrentPassword(e.target.value)}
                         variant="standard"
                     />
                     <TextField
@@ -257,6 +373,7 @@ const AccountInfo: React.FC<AccountInfoProps> = ({ userData }) => {
                         label="새 비밀번호"
                         type="password"
                         fullWidth
+                        onChange={(e) => setNewPassword(e.target.value)}
                         variant="standard"
                     />
                     <TextField
@@ -264,12 +381,13 @@ const AccountInfo: React.FC<AccountInfoProps> = ({ userData }) => {
                         label="새 비밀번호 확인"
                         type="password"
                         fullWidth
+                        onChange={(e) => setConfirmNewPassword(e.target.value)}
                         variant="standard"
                     />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenPasswordDialog(false)}>취소</Button>
-                    <Button onClick={() => setOpenPasswordDialog(false)}>변경</Button>
+                    <Button onClick={() => handlePasswordChange()}>변경</Button>
                 </DialogActions>
             </Dialog>
 
@@ -282,6 +400,7 @@ const AccountInfo: React.FC<AccountInfoProps> = ({ userData }) => {
                         label="현재 비밀번호"
                         type="password"
                         fullWidth
+                        onChange={(e) => setPassword(e.target.value)}
                         variant="standard"
                     />
                 </DialogContent>
