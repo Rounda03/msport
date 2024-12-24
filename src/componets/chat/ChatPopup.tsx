@@ -46,8 +46,9 @@ const dummyFriends = [
 interface Props{
     top:string;
     right:string;
+    popupHandle?:()=>void;
 }
-const ChatPopup = ({top,right}:Props) => {
+const ChatPopup = ({top,right,popupHandle}:Props) => {
     const [value, setValue] = useState<Value>('friend');
 
     const handleChange = (event: any, newValue: any) => {
@@ -57,7 +58,7 @@ const ChatPopup = ({top,right}:Props) => {
         <Paper sx={{
             width: 450,
             height: 650,
-            position: 'absolute',
+            position: 'fixed',
             top: top,
             right: right,
             display: 'flex',
@@ -68,7 +69,7 @@ const ChatPopup = ({top,right}:Props) => {
                 <Tab label={'친구'} value={'friend'}/>
                 <Tab label={'채팅'} value={'chat'}/>
             </Tabs>
-
+            <button style={{position:'absolute',right:'0', width:'80px',height:'49px'}} onClick={()=> popupHandle?.()}>close</button>
             <DialogContent >
                 <List >
                     {value === 'chat' &&

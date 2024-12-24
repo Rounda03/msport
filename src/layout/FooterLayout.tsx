@@ -16,11 +16,11 @@ const FooterLayout = () => {
                 padding: 0,
                 color: 'black',
                 border: '1px solid black',
-                position: 'absolute',
+                position: 'fixed',
                 bottom: '50px',
                 right: '50px'
             }}>채팅</Button>
-            {open && <ChatPopup right={'45px'} top={'490px'}/>}
+            {open && <ChatPopup right={'45px'} top={'50px'} popupHandle={changeHandle} />}
         </>
     )
 }
