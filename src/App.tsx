@@ -7,6 +7,8 @@ import HeaderLayout from './layout/HeaderLayout';
 import Samplepage from "./pages/sample/samplepage";
 import LoginPage from "./pages/login/LoginPage";
 import SignUpPage from "./pages/login/SignUpPage";
+import AccountInfo from "./pages/account/AccountInfo";
+
 
 function App() {
     const [session, setSession] = useState<Session | null>(null);
@@ -34,8 +36,17 @@ function App() {
                 {/*로그인후*/}
                 <Route path="/sample" element={
                     session ? (
-                        <HeaderLayout userId={session.user.email || ''}>
+                        <HeaderLayout userId={session.user.email || ''} userData={session.user.user_metadata}>
                             <Samplepage />
+                        </HeaderLayout>
+                    ) : (
+                        <Navigate to="/login" replace />
+                    )
+                } />
+                <Route path="/accountInfo" element={
+                    session ? (
+                        <HeaderLayout userId={session.user.email || ''} userData={session.user.user_metadata}>
+                            <AccountInfo  userData={session.user}/>
                         </HeaderLayout>
                     ) : (
                         <Navigate to="/login" replace />

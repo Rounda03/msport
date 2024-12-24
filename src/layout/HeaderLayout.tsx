@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import supabase from '../supabaseClient';
 import '../css/Layout.css';
 import {AppBar, Tabs, Tab, Box, Button, Avatar, Badge, Menu, MenuItem, styled, createTheme,} from '@mui/material';
+import {UserMetadata} from "@supabase/supabase-js";
 
 interface HeaderLayoutProps {
     children: React.ReactNode;
     userId: string;
+    userData?: UserMetadata;
     userAvatar?: string;
 }
 
@@ -42,7 +44,7 @@ const theme = createTheme({
     },
 });
 
-const HeaderLayout: React.FC<HeaderLayoutProps> = ({ children, userId, userAvatar }) => {
+const HeaderLayout: React.FC<HeaderLayoutProps> = ({ children, userId, userAvatar, userData }) => {
     const navigate = useNavigate();
 
     const [activeIndex, setActiveIndex] = useState(0);
@@ -74,11 +76,15 @@ const HeaderLayout: React.FC<HeaderLayoutProps> = ({ children, userId, userAvata
         setAnchorEl(event.currentTarget);
     };
 
+    const handleMenuItemClick = (path: string) => {
+        handleClose();
+        navigate(path);
+    };
 
     return (
         <div className="header-layout">
             <header className="header">
-                <h1>My App</h1>
+                <h1 onClick={() => navigate('/sample')} style={{cursor: 'pointer'}}>My App</h1>
                 <Box>
                     <Badge
                         overlap="circular"
@@ -87,16 +93,18 @@ const HeaderLayout: React.FC<HeaderLayoutProps> = ({ children, userId, userAvata
                     >
                         <Avatar alt="Travis Howard" src="" />
                     </Badge>
-                    <span onClick={(e)=>IdMouseClick(e)}>{userId}</span>
-                    <Button onClick={handleLogout}>로그아웃</Button>
+                    <span onClick={IdMouseClick} aria-label="사용자 메뉴 열기" style={{cursor: 'pointer'}}>
+                        {userData?.name || userId}님 환영합니다!
+                    </span>
+                    {/*<Button onClick={handleLogout}>로그아웃</Button>*/}
                     <StyledMenu
                         anchorEl={anchorEl}
                         open={Boolean(anchorEl)}
                         onClose={handleClose}
                     >
-                        <MenuItem onClick={handleClose}>계정 정보</MenuItem>
-                        <MenuItem onClick={handleClose}>포트폴리오 정보</MenuItem>
-                        <MenuItem onClick={handleClose}>친구 목록</MenuItem>
+                        <MenuItem onClick={() => handleMenuItemClick('/accountInfo')}>계정 설정</MenuItem>
+                        <MenuItem onClick={() => handleMenuItemClick('/portfolio')}>포트폴리오 정보</MenuItem>
+                        <MenuItem onClick={() => handleMenuItemClick('/friends')}>친구 목록</MenuItem>
                         <MenuItem onClick={handleLogout}>로그아웃</MenuItem>
                     </StyledMenu>
                 </Box>
