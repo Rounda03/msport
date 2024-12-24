@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import supabase from '../supabaseClient';
 import '../css/Layout.css';
-import {AppBar, Tabs, Tab, Box, Button, Avatar, Badge, Menu, MenuItem, styled, createTheme,} from '@mui/material';
+import { Tabs, Tab, Box, Avatar, Badge, Menu, MenuItem, styled, createTheme,} from '@mui/material';
 import {UserMetadata} from "@supabase/supabase-js";
 
 interface HeaderLayoutProps {
@@ -47,10 +47,11 @@ const theme = createTheme({
 const HeaderLayout: React.FC<HeaderLayoutProps> = ({ children, userId, userAvatar, userData }) => {
     const navigate = useNavigate();
 
-    const [activeIndex, setActiveIndex] = useState(0);
     const [value, setValue] = useState(0);
-    const [userdetailpopup,setUserDetailPopup] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
+    // const [activeIndex, setActiveIndex] = useState(0);
+    // const [userdetailpopup,setUserDetailPopup] = useState(false);
+
     const handleClose = () => {
         setAnchorEl(null);
     };
@@ -96,7 +97,6 @@ const HeaderLayout: React.FC<HeaderLayoutProps> = ({ children, userId, userAvata
                     <span onClick={IdMouseClick} aria-label="사용자 메뉴 열기" style={{cursor: 'pointer'}}>
                         {userData?.name || userId}님 환영합니다!
                     </span>
-                    {/*<Button onClick={handleLogout}>로그아웃</Button>*/}
                     <StyledMenu
                         anchorEl={anchorEl}
                         open={Boolean(anchorEl)}
@@ -110,15 +110,14 @@ const HeaderLayout: React.FC<HeaderLayoutProps> = ({ children, userId, userAvata
                 </Box>
             </header>
             <Tabs value={value} onChange={handleChange} textColor="inherit" indicatorColor="secondary" style={{backgroundColor: '#f0f0f0'}}>
-                <Tab label="홈" />
-                <Tab label="자기소개서" onClick={() => handleMenuItemClick('/selfIntroduction')}/>
-                <Tab label="포트폴리오" />
-                <Tab label="프로젝트" />
-                <Tab label="사용기술" />
-                <Tab label="내 문서" />
-                <Tab label="커뮤니티" />
+                <Tab label="홈" onClick={() => handleMenuItemClick('/main')}/>
+                <Tab label="자기소개서" onClick={() => handleMenuItemClick('/coverLetter')}/>
+                <Tab label="포트폴리오" onClick={() => handleMenuItemClick('/selfIntroduction')}/>
+                <Tab label="프로젝트" onClick={() => handleMenuItemClick('')}/>
+                <Tab label="사용기술" onClick={() => handleMenuItemClick('')}/>
+                <Tab label="내 문서" onClick={() => handleMenuItemClick('')}/>
+                <Tab label="커뮤니티" onClick={() => handleMenuItemClick('')}/>
             </Tabs>
-            <main className="main-content">{children}</main>
         </div>
     );
 };

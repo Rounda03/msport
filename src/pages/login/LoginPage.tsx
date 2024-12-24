@@ -19,7 +19,7 @@ const LoginPage: React.FC = () => {
             if (error) throw error;
 
             // 로그인 성공
-            navigate('/sample');
+            navigate('/main');
         } catch (error : any) {
             alert('로그인 실패: ' + error.message);
         }

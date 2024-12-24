@@ -3,14 +3,12 @@ import { Route, Routes, Navigate, BrowserRouter } from 'react-router-dom';
 import { Session } from '@supabase/supabase-js';
 import supabase from './supabaseClient';
 
-import HeaderLayout from './layout/HeaderLayout';
-import Samplepage from "./pages/sample/samplepage";
 import LoginPage from "./pages/login/LoginPage";
 import SignUpPage from "./pages/login/SignUpPage";
 import AccountInfo from "./pages/account/AccountInfo";
-import FooterLayout from "./layout/FooterLayout";
 import SelfIntroduction from "./pages/selfintroduction/SelfIntroduction";
-import ChatPopup from "./layout/FooterLayout";
+import CoverLetterPage from "./pages/CoverLetter/CoverLetterPage";
+import Main from "./pages/Main/Main";
 
 function App() {
     const [session, setSession] = useState<Session | null>(null);
@@ -32,39 +30,25 @@ function App() {
     return (
         <BrowserRouter>
             <Routes>
+                {/*페이지 진입시 로그인 유무 체크*/}
+                <Route path="/" element={!session ?<Navigate to="/login" replace />:<Navigate to="/main" replace />} />
                 {/*로그인전*/}
-                <Route path="/login" element={!session ? <LoginPage /> : <Navigate to="/sample" replace />} />
-                <Route path="/signup" element={!session ? <SignUpPage /> : <Navigate to="/sample" replace />} />
+                <Route path="/login" element={!session ? <LoginPage /> : <Navigate to="/main" replace />} />
+                <Route path="/signup" element={!session ? <SignUpPage /> : <Navigate to="/main" replace />} />
                 {/*로그인후*/}
-                <Route path="/sample" element={
-                    session ? (
-                        <HeaderLayout userId={session.user.email || ''} userData={session.user.user_metadata}>
-                            <Samplepage />
-                            <FooterLayout />
-                        </HeaderLayout>
-                    ) : (
-                        <Navigate to="/login" replace />
-                    )
-                } />
+                <Route path="/main" element={<Main session={session} />} />
                 <Route path="/accountInfo" element={
-                    session ? (
-                        <HeaderLayout userId={session.user.email || ''} userData={session.user.user_metadata}>
-                            <AccountInfo  userData={session.user}/>
-                        </HeaderLayout>
-                    ) : (
-                        <Navigate to="/login" replace />
-                    )
-                } />
+                   <Main session={session} >
+                     <AccountInfo  userData={session?.user}/>
+                   </Main>}/>
+                <Route path="/coverLetter" element={
+                    <Main session={session} >
+                        <CoverLetterPage />
+                    </Main>}/>
                 <Route path="/selfIntroduction" element={
-                    session ? (
-                        <HeaderLayout userId={session.user.email || ''} userData={session.user.user_metadata}>
-                            <SelfIntroduction userData={session.user}
-                            />
-                        </HeaderLayout>
-                    ) : (
-                        <Navigate to="/login" replace />
-                    )
-                } />
+                    <Main session={session} >
+                        <SelfIntroduction userData={session?.user}/>
+                    </Main>} />
             </Routes>
         </BrowserRouter>
     );
