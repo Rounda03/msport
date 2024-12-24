@@ -8,6 +8,7 @@ import Samplepage from "./pages/sample/samplepage";
 import LoginPage from "./pages/login/LoginPage";
 import SignUpPage from "./pages/login/SignUpPage";
 import AccountInfo from "./pages/account/AccountInfo";
+import FooterLayout from "./layout/FooterLayout";
 import SelfIntroduction from "./pages/selfintroduction/SelfIntroduction";
 import ChatPopup from "./layout/FooterLayout";
 
@@ -27,16 +28,6 @@ function App() {
 
         return () => subscription.unsubscribe();
     }, []);
-    // const UserRoutes = (
-    //     <>
-    //         <Route path={'*'} element={<Navigate replace={true} to={'/login'} />} />
-    //         <Route path={'/login'} element={} />
-    //     </>
-    // );
-    //
-    // const GuestRoutes = () => {
-    //     <Routes></Routes>
-    // }
 
     return (
         <BrowserRouter>
@@ -49,7 +40,7 @@ function App() {
                     session ? (
                         <HeaderLayout userId={session.user.email || ''} userData={session.user.user_metadata}>
                             <Samplepage />
-                            <ChatPopup />
+                            <FooterLayout />
                         </HeaderLayout>
                     ) : (
                         <Navigate to="/login" replace />

@@ -1,6 +1,5 @@
 import {
     Avatar,
-    Button,
     DialogContent,
     List,
     ListItem, ListItemAvatar,
@@ -8,10 +7,6 @@ import {
 } from "@mui/material";
 import React, {useState} from "react";
 
-interface Message {
-    text: string;
-    sender: string;
-}
 type Value = 'friend' | 'chat';
 
 const dummyChatRooms = [
@@ -48,12 +43,14 @@ const dummyFriends = [
         description: '소개3',
     },
 ]
-
-const ChatPopup = () => {
+interface Props{
+    top:string;
+    right:string;
+}
+const ChatPopup = ({top,right}:Props) => {
     const [value, setValue] = useState<Value>('friend');
 
     const handleChange = (event: any, newValue: any) => {
-        console.log('newValue', newValue);
         setValue(newValue);
     };
     return (
@@ -61,8 +58,8 @@ const ChatPopup = () => {
             width: 450,
             height: 650,
             position: 'absolute',
-            top: 'px',
-            right: 'px',
+            top: top,
+            right: right,
             display: 'flex',
             flexDirection: 'column'
         }}>
@@ -72,16 +69,16 @@ const ChatPopup = () => {
                 <Tab label={'채팅'} value={'chat'}/>
             </Tabs>
 
-            <DialogContent style={{border: '1px solid red'}}>
-                <List style={{border: '1px solid red'}}>
-                    {value === 'friend' &&
+            <DialogContent >
+                <List >
+                    {value === 'chat' &&
                         dummyChatRooms.map((chatRoom) => (
                             <ListItem key={chatRoom.id}>
                                 <Avatar >{chatRoom.name.toUpperCase()}</Avatar>
                                 <ListItemText sx={{fontSize: '20px'}} primary={chatRoom.name}/>
                             </ListItem>
                         ))}
-                    {value === 'chat' &&
+                    {value === 'friend' &&
                         dummyFriends.map((friend) => (
                             <ListItem alignItems="flex-start">
                                 <ListItemAvatar>
