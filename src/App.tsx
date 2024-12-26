@@ -30,25 +30,15 @@ function App() {
     return (
         <BrowserRouter>
             <Routes>
-                {/*페이지 진입시 로그인 유무 체크*/}
-                <Route path="/" element={!session ?<Navigate to="/login" replace />:<Navigate to="/main" replace />} />
-                {/*로그인전*/}
-                <Route path="/login" element={!session ? <LoginPage /> : <Navigate to="/main" replace />} />
-                <Route path="/signup" element={!session ? <SignUpPage /> : <Navigate to="/main" replace />} />
-                {/*로그인후*/}
-                <Route path="/main" element={<Main session={session} />} />
-                <Route path="/accountInfo" element={
-                   <Main session={session} >
-                     <AccountInfo  userData={session?.user}/>
-                   </Main>}/>
-                <Route path="/coverLetter" element={
-                    <Main session={session} >
-                        <CoverLetterPage />
-                    </Main>}/>
-                <Route path="/selfIntroduction" element={
-                    <Main session={session} >
-                        <SelfIntroduction userData={session?.user}/>
-                    </Main>} />
+                {/* 로그인전 */}
+                <Route path="/login" element={!session ? <LoginPage /> : <Navigate to="/" replace />} />
+                <Route path="/signup" element={!session ? <SignUpPage /> : <Navigate to="/" replace />} />
+                {/* 로그인후 */}
+                <Route path="/" element={<Main session={session} />} >
+                    <Route path="/accountInfo" element={<AccountInfo userData={session?.user}/>}/>
+                    <Route path="/coverLetter" element={<CoverLetterPage />}/>
+                    <Route path="/selfIntroduction" element={<SelfIntroduction userData={session?.user}/>}/>
+                </Route>
             </Routes>
         </BrowserRouter>
     );

@@ -11,7 +11,7 @@ const LoginPage: React.FC = () => {
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const { data, error } = await supabase.auth.signInWithPassword({
+            const {  error } = await supabase.auth.signInWithPassword({
                 email: email,
                 password: password,
             });
@@ -19,7 +19,7 @@ const LoginPage: React.FC = () => {
             if (error) throw error;
 
             // 로그인 성공
-            navigate('/main');
+            navigate('/');
         } catch (error : any) {
             alert('로그인 실패: ' + error.message);
         }

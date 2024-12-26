@@ -2,14 +2,14 @@ import {UserMetadata} from "@supabase/supabase-js";
 import React from "react";
 import HeaderLayout from "../../layout/HeaderLayout";
 import FooterLayout from "../../layout/FooterLayout";
-import {Navigate} from "react-router-dom";
+import {Navigate, Outlet} from "react-router-dom";
 
 interface Props{
     session:UserMetadata|null;
-    children?:React.ReactNode;
 }
 
-const Main:React.FC<Props> = ({session,children}) => {
+const Main:React.FC<Props> = ({session}) => {
+    {/* 페이지 진입시 로그인 유무 체크 */}
     if(!session) return <Navigate to={'/login'}/>
     return (
         <div>
@@ -17,7 +17,7 @@ const Main:React.FC<Props> = ({session,children}) => {
                 <></>
             </HeaderLayout>
             <main className="main-content">
-                {children}
+                <Outlet/>
             </main>
             <FooterLayout/>
         </div>
