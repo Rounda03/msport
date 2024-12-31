@@ -14,7 +14,7 @@ interface Content{
 }
 interface Text{
     id:number;
-    title:string;
+    text:string;
     colspan:number;
 }
 const CoverLetterRow = ({ content }:Props) => {
@@ -26,13 +26,17 @@ const CoverLetterRow = ({ content }:Props) => {
             </tr>
             <tr>
                 {content.subTitle.map((item) =>
-                    <td key={item.id} colSpan={item.colspan}>{item.title}</td>
+                    <td key={item.id}
+                        // colSpan={item.colspan}
+                    >{item.title}</td>
                 )}
             </tr>
             {content.text.map((item,index) =>
                 <tr key={index}>
                     {item.map((text) =>
-                        (<td key={text.id} colSpan={text.colspan}>{text.title}</td>))}
+                        (<td key={text.id}
+                             // colSpan={text.colspan}
+                        >{text.text}</td>))}
                 </tr>
             )}
         </>
