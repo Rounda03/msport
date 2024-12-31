@@ -30,6 +30,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ chatRoomId, userinfo, onBack  }) =>
         });
 
         return () => {
+
             subscription.unsubscribe();
         };
     }, [chatRoomId]);
@@ -45,6 +46,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ chatRoomId, userinfo, onBack  }) =>
             console.error('Error fetching messages:', error);
         } else {
             setMessages(data);
+            scrollToBottom();
         }
     };
 
