@@ -19,7 +19,7 @@ const Main:React.FC<Props> = ({session,children}) => {
             <main className="main-content">
                 {children}
             </main>
-            <FooterLayout/>
+            <FooterLayout userinfo={session.user}/>
         </div>
     );
 }

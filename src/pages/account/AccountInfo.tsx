@@ -109,18 +109,31 @@ const AccountInfo: React.FC<AccountInfoProps> = ({ userData }) => {
 
     const onNickChangeConfirm = async (nickname: string) => {
         // supabase 닉네임변경로직
-        const { data, error } = await supabase.auth.updateUser({
-            data: { nickname: nickname } // 새로운 닉네임으로 업데이트
-        });
-        //닉네임부분만 상태 업데이트///////////////////
-        setUserInfo(prevState => ({
-            ...prevState,
-            nickname: nickname
-        }));
-        if (error) {
+        try {
+            // profiles 테이블 업데이트
+            const { data: profileData, error: profileError } = await supabase
+                .from('user_profiles')
+                .update({ nickname: nickname })
+                .eq('email', userData?.email);
+
+            if (profileError) throw profileError;
+            //
+            // // auth.users 메타데이터 업데이트
+            // const { data: authData, error: authError } = await supabase.auth.updateUser({
+            //     data: { nickname: nickname }
+            // });
+            //
+            // if (authError) throw authError;
+
+            // 상태 업데이트
+            setUserInfo(prevState => ({
+                ...prevState,
+                nickname: nickname
+            }));
+
+            console.log('사용자 정보 업데이트 성공');
+        } catch (error) {
             console.error('사용자 정보 업데이트 실패:', error);
-        } else {
-            console.log('사용자 정보 업데이트 성공:', data);
         }
     };
     const handleNickNameConfirm = () => {
@@ -214,7 +227,7 @@ const AccountInfo: React.FC<AccountInfoProps> = ({ userData }) => {
                     <Button size="small" sx={{ mt: 1 }}>프로필 사진 변경</Button>
                 </Grid>
                 <Grid item xs>
-                    <Typography variant="h4">{userData?.user_metadata.nickname || userData?.user_metadata.name}</Typography>
+                    <Typography variant="h4">{userInfo?.nickname || userData?.user_metadata.name}</Typography>
                     <Typography variant="body1">{userData?.email}</Typography>
                     <Typography variant="body2">
                         가입일: {userData?.created_at ? new Date(userData.created_at).toLocaleDateString() : '정보 없음'}
