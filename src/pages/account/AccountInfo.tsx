@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Box, Typography, Avatar, Paper, Grid, Button, Divider, TextField,
     Tabs, Tab, Switch, List, ListItem, ListItemText, ListItemSecondaryAction,
-    Dialog, DialogTitle, DialogContent, DialogActions
+    Dialog, DialogTitle, DialogContent, DialogActions, ToggleButtonGroup, ToggleButton, FormControlLabel
 } from '@mui/material';
 import { User } from "@supabase/supabase-js";
 import supabase from "../../supabaseClient";
@@ -21,7 +21,9 @@ const AccountInfo: React.FC<AccountInfoProps> = ({ userData }) => {
     const [userInfo, setUserInfo] = useState({
         nickname: userData?.user_metadata.nickname || '',
         phone: userData?.user_metadata.phone || '',
-        geusttoken: userData?.user_metadata.guest_token || ''
+        geusttoken: userData?.user_metadata.guest_token || '',
+        invite_yn: '',
+        chat_yn: true
     });
     const [password, setPassword] = useState('');
     const [currentPassword, setCurrentPassword] = useState('');
@@ -30,7 +32,8 @@ const AccountInfo: React.FC<AccountInfoProps> = ({ userData }) => {
     const [newNickname, setNewNickname] = useState('');
     const [newPhoneNumber, setNewPhoneNumber] = useState('');
     const [isNicknameChecked, setIsNicknameChecked] = useState(false);
-
+    const [openSwitchDialog, setOpenSwitchDialog] = useState(false);
+    const [switchType, setSwitchType] = useState('');
 
     const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
         if (newValue === 1 && !openSecurityCheckDialog) {
@@ -214,7 +217,84 @@ const AccountInfo: React.FC<AccountInfoProps> = ({ userData }) => {
             alert('비밀번호가 올바르지 않습니다.');
         }
     };
+    //userinfo.id로 user_profiles 테이블에서 사용자 정보를 가져옴
+    const fetchUserInfo = async () => {
+        const { data, error } = await supabase
+            .from('user_profiles')
+            .select('invite_yn, chat_yn')
+            .eq('email', userData?.email)
+            .single();
 
+        if (error) {
+            console.error('Error fetching user info:', error);
+            return;
+        }
+
+        if (data) {
+            setUserInfo(prevState => ({
+                ...prevState,
+                invite_yn: data.invite_yn,
+                chat_yn: data.chat_yn
+            }));
+        }
+    };
+    useEffect(() => {
+        //userinfo.id로 user_profiles 테이블에서 사용자 정보를 가져옴
+        fetchUserInfo();
+    }, []);
+
+    const handleSwitchChange = async (type: 'invitesyn' | 'chatyn') => {
+        // 스위치 상태를 변경한 후 확인 팝업 띄우기
+        setSwitchType(type);
+        setOpenSwitchDialog(true);
+    };
+    const handleSwitchConfirmChange = async () => {
+        // 확인 버튼 클릭 시, 조건에 맞게 프로필 업데이트
+
+                // 조건에 맞게 값 변경
+        if (switchType === 'invitesyn') {
+            // 테이블 업데이트
+            const { data, error } = await supabase
+                .from('user_profiles')
+                .update({ invite_yn: userInfo.invite_yn === 'Y' ? 'N' : 'Y' })
+                .eq('email', userData?.email);
+
+            if (error) {
+                console.error(error.message);
+            } else {
+                // 상태 변경 후 스위치 값 업데이트
+                setUserInfo(prevState => ({
+                    ...prevState,
+                    invite_yn: userInfo.invite_yn === 'Y' ? 'N' : 'Y',
+                }));
+            }
+
+        } else if (switchType === 'chatyn') {
+
+            // 테이블 업데이트
+            const { data, error } = await supabase
+                .from('user_profiles')
+                .update({ chat_yn: !userInfo.chat_yn })
+                .eq('email', userData?.email);
+
+            if (error) {
+                console.error(error.message);
+            } else {
+                // 상태 변경 후 스위치 값 업데이트
+                setUserInfo(prevState => ({
+                    ...prevState,
+                    chat_yn: !userInfo.chat_yn,
+                }));
+            }
+
+        }
+
+        // 팝업 닫기
+        setOpenSwitchDialog(false);
+    };
+    const handleCancelChange = () => {
+        setOpenSwitchDialog(false);
+    };
     return (
         <Paper elevation={3} sx={{ p: 3, m: 2 }}>
             <Grid container spacing={3} alignItems="center" mb={3}>
@@ -287,6 +367,90 @@ const AccountInfo: React.FC<AccountInfoProps> = ({ userData }) => {
                                 </Grid>
                                 <Grid item>
                                     <Button onClick={handlePhoneChange} sx={{ ml: 2 }}>변경</Button>
+                                </Grid>
+                            </Grid>
+                            {/* 친구 초대 여부 */}
+                            <Grid item xs={12}>
+                                <Grid container justifyContent="space-between" alignItems="center">
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={userInfo.invite_yn === 'Y'}
+                                                color="primary"
+                                                sx={{
+                                                    width: 150,  // 스위치의 전체 길이를 크게 설정
+                                                    height: 50,  // 높이를 설정
+                                                    '& .MuiSwitch-thumb': {
+                                                        width: 40,  // thumb의 크기 설정
+                                                        height: 40, // thumb의 높이 설정
+                                                    },
+                                                    '& .MuiSwitch-track': {
+                                                        borderRadius: 30,  // 트랙의 둥글기 설정
+                                                        backgroundColor: '#BEBEBE',  // 트랙의 색상 설정
+                                                    },
+                                                    '& .MuiSwitch-switchBase': {
+                                                        padding: 1,  // thumb의 이동 범위 설정
+                                                        '&.Mui-checked': {
+                                                            transform: 'translateX(100px)',  // checked 상태에서의 이동 범위 조정
+                                                        },
+                                                        '&.MuiSwitch-switchBase': {
+                                                            transition: 'transform 0.3s ease',  // 부드러운 이동 애니메이션 추가
+                                                        }
+                                                    },
+                                                }}
+                                            />
+                                        }
+                                        label="친구 초대 여부"
+                                        labelPlacement="start"
+                                        sx={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            width: '100%',
+                                        }}
+                                        onChange={() => handleSwitchChange('invitesyn')}
+                                    />
+                                </Grid>
+                            </Grid>
+                            {/* 채팅 초대 여부 */}
+                            <Grid item xs={12}>
+                                <Grid container justifyContent="space-between" alignItems="center">
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                               checked={userInfo.chat_yn}
+                                               onChange={() => handleSwitchChange('chatyn')}
+                                               color="primary"
+                                                sx={{
+                                                    width: 150,  // 스위치의 전체 길이를 크게 설정
+                                                    height: 50,  // 높이를 설정
+                                                    '& .MuiSwitch-thumb': {
+                                                        width: 40,  // thumb의 크기 설정
+                                                        height: 40, // thumb의 높이 설정
+                                                    },
+                                                    '& .MuiSwitch-track': {
+                                                        borderRadius: 30,  // 트랙의 둥글기 설정
+                                                        backgroundColor: '#BEBEBE',  // 트랙의 색상 설정
+                                                    },
+                                                    '& .MuiSwitch-switchBase': {
+                                                        padding: 1,  // thumb의 이동 범위 설정
+                                                        '&.Mui-checked': {
+                                                            transform: 'translateX(100px)',  // checked 상태에서의 이동 범위 조정
+                                                        },
+                                                        '&.MuiSwitch-switchBase': {
+                                                            transition: 'transform 0.3s ease',  // 부드러운 이동 애니메이션 추가
+                                                        }
+                                                    },
+                                                }}
+                                            />
+                                        }
+                                        label="채팅 초대 여부"
+                                        labelPlacement="start"
+                                        sx={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            width: '100%',
+                                        }}
+                                    />
                                 </Grid>
                             </Grid>
                         </Grid>
@@ -420,6 +584,21 @@ const AccountInfo: React.FC<AccountInfoProps> = ({ userData }) => {
                 <DialogActions>
                     <Button onClick={() => setOpenSecurityCheckDialog(false)}>취소</Button>
                     <Button onClick={handleSecurityCheck}>확인</Button>
+                </DialogActions>
+            </Dialog>
+            {/* 확인 팝업 */}
+            <Dialog open={openSwitchDialog} onClose={handleCancelChange}>
+                <DialogTitle>변경하시겠습니까?</DialogTitle>
+                <DialogContent>
+                    <p>설정 변경 후 반영됩니다. 변경하시겠습니까?</p>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCancelChange} color="primary">
+                        취소
+                    </Button>
+                    <Button onClick={handleSwitchConfirmChange} color="primary">
+                        확인
+                    </Button>
                 </DialogActions>
             </Dialog>
         </Paper>
