@@ -24,6 +24,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ chatRoomId, userinfo, onBack  }) =>
 
     useEffect(() => {
         fetchMessages(chatRoomId);
+        markMessagesAsRead(chatRoomId);
         const subscription = subscribeToMessages(chatRoomId, (payload) => {
             setMessages((prev) => [...prev, payload.new]);
             scrollToBottom();
@@ -34,7 +35,16 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ chatRoomId, userinfo, onBack  }) =>
             subscription.unsubscribe();
         };
     }, [chatRoomId]);
+    const markMessagesAsRead = async (chatRoomId: number) => {
+        const { error } = await supabase
+            .from('messages')
+            .update({ is_read: true })
+            .eq('chat_room_id', chatRoomId)
+            .neq('user_id', userinfo.id)
+            .is('is_read', false);
 
+        if (error) console.error('Error marking messages as read:', error);
+    };
     const fetchMessages = async (chatRoomId: number) => {
         const { data, error } = await supabase
             .from('messages')
