@@ -117,6 +117,7 @@ const HeaderLayout: React.FC<HeaderLayoutProps> = ({ children, userId, userAvata
                 <Tab label="사용기술" onClick={() => handleMenuItemClick('')}/>
                 <Tab label="내 문서" onClick={() => handleMenuItemClick('')}/>
                 <Tab label="커뮤니티" onClick={() => handleMenuItemClick('')}/>
+                <Tab label="테스트" onClick={() => handleMenuItemClick('/testpage')}/>
             </Tabs>
         </div>
     );

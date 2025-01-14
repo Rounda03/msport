@@ -9,6 +9,7 @@ import AccountInfo from "./pages/account/AccountInfo";
 import SelfIntroduction from "./pages/selfintroduction/SelfIntroduction";
 import CoverLetterPage from "./pages/CoverLetter/CoverLetterPage";
 import Main from "./pages/Main/Main";
+import TestImg from "./pages/PortfolioImg/testimg";
 
 function App() {
     const [session, setSession] = useState<Session | null>(null);
@@ -49,6 +50,10 @@ function App() {
                     <Main session={session} >
                         <SelfIntroduction userData={session?.user}/>
                     </Main>} />
+                <Route path="/testpage" element={
+                    <Main session={session} >
+                        <TestImg />
+                    </Main>}/>
             </Routes>
         </BrowserRouter>
     );
