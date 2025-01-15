@@ -58,11 +58,11 @@ function App() {
                     </Main>}/>
                 <Route path="/codeedit" element={
                     <Main session={session} >
-                        <EditPage />
+                        <EditPage userData={session?.user}/>
                     </Main>}/>
                 <Route path="/codeview" element={
                     <Main session={session} >
-                        <ViewPage />
+                        <ViewPage userData={session?.user}/>
                     </Main>}/>
             </Routes>
         </BrowserRouter>

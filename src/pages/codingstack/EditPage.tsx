@@ -5,9 +5,14 @@ import {Grid, Paper, TextField, Switch, IconButton, Typography, Button, Stack} f
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import { User } from "@supabase/supabase-js";
 
+interface Props {
+    userData?: User;
+}
 interface CodeSnippet {
-    id: string;
+    id?: number;
+    user_id: string;
     title: string;
     code: string;
     is_shown: boolean;
@@ -15,42 +20,51 @@ interface CodeSnippet {
 }
 const scope = { React, Stack, Button };
 
-const EditPage: React.FC = () => {
+const EditPage: React.FC<Props> = ( {userData} ) => {
     const [snippets, setSnippets] = useState<CodeSnippet[]>([]);
 
     useEffect(() => {
-        fetchSnippets();
-    }, []);
+        if (userData) {
+            fetchSnippets();
+        }
+    }, [userData]);
 
     const fetchSnippets = async () => {
+        if (!userData?.id) return;
+
         const { data, error } = await supabase
             .from('code_snippets')
             .select('*')
+            .eq('user_id', userData.id)
             .order('order_position', { ascending: true });
+
         if (error) console.error('Error fetching snippets:', error);
         else setSnippets(data || []);
     };
 
     const addSnippet = () => {
+        if (!userData?.id) return;
+
         const newPosition = snippets.length > 0 ? Math.max(...snippets.map(s => s.order_position)) + 1 : 0;
-        setSnippets([...snippets, {
-            id: Date.now().toString(),
+        const newSnippet: CodeSnippet = {
+            user_id: userData.id,
             title: 'New Snippet',
             code: '',
             is_shown: false,
             order_position: newPosition
-        }]);
+        };
+        setSnippets([...snippets, newSnippet]);
     };
 
-    const updateSnippet = (id: string, field: keyof CodeSnippet, value: any) => {
+    const updateSnippet = (id: number, field: keyof CodeSnippet, value: any) => {
         setSnippets(snippets.map(s => s.id === id ? { ...s, [field]: value } : s));
     };
 
-    const removeSnippet = (id: string) => {
+    const removeSnippet = (id: number) => {
         setSnippets(snippets.filter(s => s.id !== id));
     };
 
-    const moveSnippet = (id: string, direction: 'up' | 'down') => {
+    const moveSnippet = (id: number, direction: 'up' | 'down') => {
         const index = snippets.findIndex(s => s.id === id);
         if ((direction === 'up' && index > 0) || (direction === 'down' && index < snippets.length - 1)) {
             const newSnippets = [...snippets];
@@ -79,7 +93,7 @@ const EditPage: React.FC = () => {
                 </Button>
             </Grid>
             {snippets.map((snippet, index) => (
-                <Grid item xs={12} key={snippet.id}>
+                <Grid item xs={12} key={snippet.id!}>
                     <Paper elevation={3} style={{ padding: '20px' }}>
                         <Grid container spacing={2}>
                             <Grid item xs={12} sm={6}>
@@ -87,28 +101,28 @@ const EditPage: React.FC = () => {
                                     fullWidth
                                     label="Snippet Title"
                                     value={snippet.title}
-                                    onChange={e => updateSnippet(snippet.id, 'title', e.target.value)}
+                                    onChange={e => updateSnippet(snippet.id!, 'title', e.target.value)}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6} container alignItems="center" justifyContent="flex-end">
                                 <Switch
                                     checked={snippet.is_shown}
-                                    onChange={e => updateSnippet(snippet.id, 'is_shown', e.target.checked)}
+                                    onChange={e => updateSnippet(snippet.id!, 'is_shown', e.target.checked)}
                                 />
                                 <Typography>Show in public</Typography>
-                                <IconButton onClick={() => removeSnippet(snippet.id)}>
+                                <IconButton onClick={() => removeSnippet(snippet.id!)}>
                                     <DeleteIcon />
                                 </IconButton>
-                                <IconButton onClick={() => moveSnippet(snippet.id, 'up')} disabled={index === 0}>
+                                <IconButton onClick={() => moveSnippet(snippet.id!, 'up')} disabled={index === 0}>
                                     <ArrowUpwardIcon />
                                 </IconButton>
-                                <IconButton onClick={() => moveSnippet(snippet.id, 'down')} disabled={index === snippets.length - 1}>
+                                <IconButton onClick={() => moveSnippet(snippet.id!, 'down')} disabled={index === snippets.length - 1}>
                                     <ArrowDownwardIcon />
                                 </IconButton>
                             </Grid>
                             <Grid item xs={12} md={6}>
                                 <LiveProvider code={snippet.code} scope={scope}>
-                                    <LiveEditor onChange={code => updateSnippet(snippet.id, 'code', code)} />
+                                    <LiveEditor onChange={code => updateSnippet(snippet.id!, 'code', code)} />
                                 </LiveProvider>
                             </Grid>
                             <Grid item xs={12} md={6}>
