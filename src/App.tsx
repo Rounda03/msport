@@ -10,6 +10,8 @@ import SelfIntroduction from "./pages/selfintroduction/SelfIntroduction";
 import CoverLetterPage from "./pages/CoverLetter/CoverLetterPage";
 import Main from "./pages/Main/Main";
 import TestImg from "./pages/PortfolioImg/testimg";
+import EditPage from "./pages/codingstack/EditPage";
+import ViewPage from "./pages/codingstack/ViewPage";
 
 function App() {
     const [session, setSession] = useState<Session | null>(null);
@@ -53,6 +55,14 @@ function App() {
                 <Route path="/testpage" element={
                     <Main session={session} >
                         <TestImg />
+                    </Main>}/>
+                <Route path="/codeedit" element={
+                    <Main session={session} >
+                        <EditPage />
+                    </Main>}/>
+                <Route path="/codeview" element={
+                    <Main session={session} >
+                        <ViewPage />
                     </Main>}/>
             </Routes>
         </BrowserRouter>

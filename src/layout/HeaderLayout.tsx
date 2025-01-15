@@ -51,6 +51,7 @@ const HeaderLayout: React.FC<HeaderLayoutProps> = ({ children, userId, userAvata
     const [anchorEl, setAnchorEl] = useState(null);
     // const [activeIndex, setActiveIndex] = useState(0);
     // const [userdetailpopup,setUserDetailPopup] = useState(false);
+    const [skillMenuAnchorEl, setSkillMenuAnchorEl] = useState<HTMLElement | null>(null);
 
     const handleClose = () => {
         setAnchorEl(null);
@@ -81,7 +82,10 @@ const HeaderLayout: React.FC<HeaderLayoutProps> = ({ children, userId, userAvata
         handleClose();
         navigate(path);
     };
-
+    //사용스택 하위메뉴
+    const openSkillMenu = (event: React.MouseEvent<HTMLElement>) => {
+        setSkillMenuAnchorEl(event.currentTarget);
+    };
     return (
         <div className="header-layout">
             <header className="header">
@@ -114,11 +118,27 @@ const HeaderLayout: React.FC<HeaderLayoutProps> = ({ children, userId, userAvata
                 <Tab label="자기소개서" onClick={() => handleMenuItemClick('/coverLetter')}/>
                 <Tab label="포트폴리오" onClick={() => handleMenuItemClick('/selfIntroduction')}/>
                 <Tab label="프로젝트" onClick={() => handleMenuItemClick('')}/>
-                <Tab label="사용기술" onClick={() => handleMenuItemClick('')}/>
+                <Tab
+                    label="사용 기술"
+                    onClick={openSkillMenu}
+                    aria-controls="skills-menu"
+                    aria-haspopup="true"
+                />
                 <Tab label="내 문서" onClick={() => handleMenuItemClick('')}/>
                 <Tab label="커뮤니티" onClick={() => handleMenuItemClick('')}/>
                 <Tab label="테스트" onClick={() => handleMenuItemClick('/testpage')}/>
             </Tabs>
+            <StyledMenu
+                id="skills-menu"
+                anchorEl={skillMenuAnchorEl}
+                open={Boolean(skillMenuAnchorEl)}
+                onClose={() => setSkillMenuAnchorEl(null)}
+            >
+                <MenuItem onClick={() => navigate('/frontend')}>프론트엔드</MenuItem>
+                <MenuItem onClick={() => navigate('/backend')}>백엔드</MenuItem>
+                <MenuItem onClick={() => navigate('/codeedit')}>테스트코드편집</MenuItem>
+                <MenuItem onClick={() => navigate('/codeview')}>테스트코드보기</MenuItem>
+            </StyledMenu>
         </div>
     );
 };
