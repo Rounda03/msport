@@ -76,9 +76,29 @@ const EditPage: React.FC<Props> = ( {userData} ) => {
     };
 
     const saveSnippets = async () => {
-        const { data, error } = await supabase.from('code_snippets').upsert(snippets);
-        if (error) console.error('Error saving snippets:', error);
-        else console.log('Snippets saved successfully');
+        const snippetsToInsert = snippets.filter(s => !s.id);
+        const snippetsToUpdate = snippets.filter(s => s.id);
+
+        // 새로운 스니펫 삽입
+        if (snippetsToInsert.length > 0) {
+            const { error: insertError } = await supabase
+                .from('code_snippets')
+                .insert(snippetsToInsert);
+            if (insertError) console.error('Error inserting snippets:', insertError);
+        }
+
+        // 기존 스니펫 업데이트
+        if (snippetsToUpdate.length > 0) {
+            const { error: updateError } = await supabase
+                .from('code_snippets')
+                .upsert(snippetsToUpdate);
+            if (updateError) console.error('Error updating snippets:', updateError);
+        }
+
+        // 저장 후 스니펫 다시 불러오기
+        await fetchSnippets();
+
+        console.log('Snippets saved successfully');
     };
 
     return (
