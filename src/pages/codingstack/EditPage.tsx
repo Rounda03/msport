@@ -98,6 +98,7 @@ const EditPage: React.FC<Props> = ( {userData} ) => {
         }
 
         // 저장 후 스니펫 다시 불러오기
+        alert('Snippets saved successfully');
         await fetchSnippets();
 
         console.log('Snippets saved successfully');
