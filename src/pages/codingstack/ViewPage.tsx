@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { LiveProvider, LiveEditor, LiveError, LivePreview } from 'react-live';
 import supabase from '../../supabaseClient';
 import { User } from "@supabase/supabase-js";
-import { Grid, Paper, Typography, Container, Box } from '@mui/material';
+import {Grid, Paper, Typography, Container, Box, Stack, Button} from '@mui/material';
 
 interface Props {
     userData?: User;
@@ -12,6 +12,7 @@ interface CodeSnippet {
     title: string;
     code: string;
 }
+const scope = { React, Stack, Button };
 
 const ViewPage:  React.FC<Props> = ( {userData} ) => {
     const [snippets, setSnippets] = useState<CodeSnippet[]>([]);
@@ -49,7 +50,7 @@ const ViewPage:  React.FC<Props> = ( {userData} ) => {
                                     <Typography variant="h5" component="h2" gutterBottom>
                                         {snippet.title}
                                     </Typography>
-                                    <LiveProvider code={snippet.code}>
+                                    <LiveProvider code={snippet.code} scope={scope}>
                                         <Box mb={2}>
                                             <LiveEditor disabled style={{ fontSize: '14px' }} />
                                         </Box>
