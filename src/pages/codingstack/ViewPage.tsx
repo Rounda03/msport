@@ -28,6 +28,7 @@ const ViewPage:  React.FC<Props> = ( {userData} ) => {
             .select('*')
             .eq('user_id', userData.id)
             .eq('is_shown', true)
+            .eq('is_del', false)
             .order('order_position', { ascending: true });
 
         if (error) console.error('Error fetching snippets:', error);

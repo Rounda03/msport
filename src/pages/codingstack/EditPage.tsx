@@ -17,6 +17,7 @@ interface CodeSnippet {
     code: string;
     is_shown: boolean;
     order_position: number;
+    is_del?: boolean;
 }
 const scope = { React, Stack, Button };
 
@@ -36,6 +37,7 @@ const EditPage: React.FC<Props> = ( {userData} ) => {
             .from('code_snippets')
             .select('*')
             .eq('user_id', userData.id)
+            .eq('is_del', false)
             .order('order_position', { ascending: true });
 
         if (error) console.error('Error fetching snippets:', error);
@@ -61,7 +63,7 @@ const EditPage: React.FC<Props> = ( {userData} ) => {
     };
 
     const removeSnippet = (id: number) => {
-        setSnippets(snippets.filter(s => s.id !== id));
+        setSnippets(snippets.map(s => s.id === id ? { ...s, is_del: true } : s));
     };
 
     const moveSnippet = (id: number, direction: 'up' | 'down') => {
@@ -112,7 +114,7 @@ const EditPage: React.FC<Props> = ( {userData} ) => {
                     Save All Snippets
                 </Button>
             </Grid>
-            {snippets.map((snippet, index) => (
+            {snippets.filter(snippet => !snippet.is_del).map((snippet, index) => (
                 <Grid item xs={12} key={snippet.id!}>
                     <Paper elevation={3} style={{ padding: '20px' }}>
                         <Grid container spacing={2}>
