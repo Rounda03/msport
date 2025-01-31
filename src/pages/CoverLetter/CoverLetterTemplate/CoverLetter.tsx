@@ -31,7 +31,14 @@ const CoverLetter = ({content, userInfo}: Props) => {
             <table>
                 <thead>
                 <tr>
-                    <th style={{width: '15%'}} rowSpan={5}>img</th>
+                    <th style={{width: '15%'}} rowSpan={5}>
+                        <img src={userInfo?.imgUrl?URL.createObjectURL(userInfo?.imgUrl) : ''} alt="미리보기" style={{
+                        width: '93%',
+                        height: '493%',
+                        objectFit: 'cover',
+                        // borderRadius: '8px'
+                        }}/>
+                    </th>
                     <th style={{width: '10%'}} colSpan={2}>이름</th>
                     <td style={{width: '15%'}} colSpan={3}>{userInfo?.name || ''}</td>
                     <th style={{width: '10%'}}>영문</th>

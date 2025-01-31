@@ -1,6 +1,7 @@
-import { useState} from "react";
+import {useState} from "react";
 import Input from "../../componets/Input";
 import QualificationItem from "./components/QualificationItem";
+import {useFileUploadAndFetch} from "../../hook/useFile/useFileUploadAndFetch ";
 
 interface RowData {
     title: string;
@@ -51,10 +52,22 @@ interface Props {
     rowDataHandler?: (rowData: RowData[]) => void;
     inputDataHandler?: (inputData: any) => void;
 }
-
+interface InputData {
+    imgUrl: File | null;
+    name: string;
+    engName: string;
+    chnName: string;
+    juminNumber: string;
+    age: string;
+    phone: string;
+    tel: string;
+    email: string;
+    sns: string;
+    address: string;
+}
 const CoverLetterInData = ({rowDataHandler, inputDataHandler}: Props) => {
-    const [inputData, setInputData] = useState({
-        imgUrl: '',
+    const [inputData, setInputData] = useState<InputData>({
+        imgUrl: null,
         name: '',
         engName: '',
         chnName: '',
@@ -69,19 +82,38 @@ const CoverLetterInData = ({rowDataHandler, inputDataHandler}: Props) => {
 
     const inputOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newData = {...inputData, [e.target.name]: e.target.value}
-        setInputData({
-            ...inputData,
-            [e.target.name]: e.target.value
-        })
+        setInputData(newData)
         inputDataHandler?.(newData)
     }
-
+    const {handleUpload, handleFileChange} = useFileUploadAndFetch();
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        handleFileChange(e);
+        const selectedFile = e.target.files?.[0];
+        if (selectedFile) {
+            const newData = {...inputData, imgUrl: selectedFile}
+            setPreviewUrl(URL.createObjectURL(selectedFile));
+            setInputData(newData);
+            inputDataHandler?.(newData);
+        }
+    };
     return (
         <div>
             <h1>입력</h1>
+            <div style={{display: 'flex', flexDirection: 'row', gap: '15px'}}>
+                <button onClick={() => console.log(inputData.imgUrl)}>입력값 확인</button>
+                <button onClick={() => handleUpload('test')}>저장</button>
+            </div>
             <div style={{display: 'flex', flexDirection: 'column'}}>
                 <div style={{display: 'flex', flexDirection: 'row', gap: '15px'}}>
-                    <Input type={'text'} name={inputName.NAME} onChange={inputOnChange} placeholder={placeholders.name}
+                    <img src={previewUrl||''} alt="미리보기" style={{ width: '150px', height: '150px', objectFit: 'cover', borderRadius: '8px' }} />
+                    <Input type={'FILE'} name={inputName.IMGURL} onChange={handleFileInputChange}
+                           placeholder={placeholders.imgUrl}
+                           label={'이미지 URL'}/>
+                </div>
+                <div style={{display: 'flex', flexDirection: 'row', gap: '15px'}}>
+                    <Input type={'text'} name={inputName.NAME} onChange={inputOnChange}
+                           placeholder={placeholders.name}
                            label={'이름'}/>
                     <Input type={'text'} name={inputName.ENGNAME} onChange={inputOnChange}
                            placeholder={placeholders.engName} label={'영문'}/>
@@ -91,21 +123,24 @@ const CoverLetterInData = ({rowDataHandler, inputDataHandler}: Props) => {
                 <div style={{display: 'flex', flexDirection: 'row', gap: '15px'}}>
                     <Input type={'text'} name={inputName.JUMINNUMBER} onChange={inputOnChange}
                            placeholder={placeholders.juminNumber} label={'주민번호'}/>
-                    <Input type={'text'} name={inputName.AGE} onChange={inputOnChange} placeholder={placeholders.age}
+                    <Input type={'text'} name={inputName.AGE} onChange={inputOnChange}
+                           placeholder={placeholders.age}
                            label={'나이'}/>
                 </div>
                 <div style={{display: 'flex', flexDirection: 'row', gap: '15px'}}>
                     <Input type={'text'} name={inputName.PHONE} onChange={inputOnChange}
                            placeholder={placeholders.phone}
                            label={'휴대폰'}/>
-                    <Input type={'text'} name={inputName.TEL} onChange={inputOnChange} placeholder={placeholders.tel}
+                    <Input type={'text'} name={inputName.TEL} onChange={inputOnChange}
+                           placeholder={placeholders.tel}
                            label={'전화번호'}/>
                 </div>
                 <div style={{display: 'flex', flexDirection: 'row', gap: '15px'}}>
                     <Input type={'text'} name={inputName.EMAIL} onChange={inputOnChange}
                            placeholder={placeholders.email}
                            label={'이메일'}/>
-                    <Input type={'text'} name={inputName.SNS} onChange={inputOnChange} placeholder={placeholders.sns}
+                    <Input type={'text'} name={inputName.SNS} onChange={inputOnChange}
+                           placeholder={placeholders.sns}
                            label={'SNS'}/>
                 </div>
                 <Input type={'text'} name={inputName.ADDRESS} onChange={inputOnChange}
