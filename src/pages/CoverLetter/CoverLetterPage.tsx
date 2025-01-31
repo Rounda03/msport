@@ -2,8 +2,8 @@ import CoverLetter from "./CoverLetterTemplate/CoverLetter";
 import CoverLetterInData from "./CoverLetterInData";
 import React, {useState} from "react";
 import CoverLetterList from "./CoverLetterList";
-import PopupManager, {createConfig, FallbackProps} from "../../componets/PopupManager";
-import Popup from "../../componets/Popup";
+import PopupManager, {createConfig} from "../../componets/popupManager/PopupManager";
+import Popup from "../../componets/popupManager/Popup";
 
 
 
@@ -41,7 +41,7 @@ const CoverLetterPage = () => {
         {
             key:'pdfPopup',
             component:({reset, propValue})=>(
-                <Popup top={'0%'} left={'50%'} overlay={true} width={'210mm'}height={'90%'}>
+                <Popup top={'0%'} left={'50%'} overlay={true} width={'210mm'} height={'90%'}>
                     <iframe src={propValue} style={{width: '100%', height: '100%'}}></iframe>
                     <button onClick={reset}>Close</button>
                 </Popup>

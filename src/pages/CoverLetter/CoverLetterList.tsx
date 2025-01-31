@@ -1,8 +1,7 @@
 import {useState} from "react";
-import {usePopupAnimation, usePopupController} from "../../componets/PopupManager";
+import {usePopupAnimation, usePopupController} from "../../componets/popupManager/PopupManager";
 
 const CoverLetterList = () => {
-    const [file, setFile] = useState();
     const [fileUrl, setFileUrl] = useState<string | null>(null);
 
     const { showPopup } = usePopupController();
