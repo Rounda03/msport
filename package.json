@@ -5,6 +5,7 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@monaco-editor/react": "^4.6.0",
     "@mui/icons-material": "^6.3.0",
     "@mui/material": "^6.3.0",
     "@supabase/supabase-js": "^2.46.1",
@@ -15,6 +16,8 @@
     "@types/node": "^16.18.119",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
+    "esbuild-wasm": "^0.24.2",
+    "monaco-editor": "^0.52.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-live": "^4.1.8",
