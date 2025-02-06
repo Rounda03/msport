@@ -28,19 +28,21 @@ const CodeEditor: React.FC = () => {
     return (
         <div>
             <div style={{display: 'flex'}}>
-                {selectedFile ? <Editor
-                    height="70vh"
-                    width={"50vw"}
-                    defaultLanguage="typescript"
-                    defaultValue={selectedFile.code}
-                    beforeMount={handleEditorWillMount}
-                    onMount={handleEditorDidMount}
-                /> : (
-                    <div style={{width: '50vw', height: '70vh',}}>
-                        <h1>파일목록에서 <br/>파일을 선택해주세요</h1>
+                <div style={{display: selectedFile ? 'block' : 'none'}}>
+                    <Editor
+                        height="70vh"
+                        width={"50vw"}
+                        defaultLanguage="typescript"
+                        defaultValue={selectedFile?.code}
+                        beforeMount={handleEditorWillMount}
+                        onMount={handleEditorDidMount}
+                    />
+                </div>
+                {!selectedFile && (
+                    <div style={{ width: '50vw', height: '70vh' }}>
+                        <h1>파일목록에서 <br />파일을 선택해주세요</h1>
                     </div>
                 )}
-
             </div>
             <div>
                 <button onClick={() => testButton()}>

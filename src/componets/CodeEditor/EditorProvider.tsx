@@ -46,7 +46,7 @@ const EditorProvider: React.FC<Props> = ({children, view = false, codeData}) => 
 
         /* 최초 마운틴시 esbuild세팅후 빌드실행  */
         const mounted = async () => {
-            await initializeEsbuild();
+            await initializeEsbuild().catch(() => {});
             await build();
         }
         mounted().then(() => console.log('mounted'));

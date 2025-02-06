@@ -20,8 +20,8 @@ const virtualFileSystem = new Map<string, string>();
 const initializeEsbuild = async () => {
     await esbuild.initialize({
         worker: true,
-        wasmURL: 'node_modules/esbuild-wasm/esbuild.wasm',
-        // wasmURL: 'https://esm.sh/esbuild-wasm/esbuild.wasm',
+        // wasmURL: 'node_modules/esbuild-wasm/esbuild.wasm',
+        wasmURL: 'https://esm.sh/esbuild-wasm/esbuild.wasm',
     });
 };
 const createHtml = (code: string, importMap: ImportMap | RecordImportMap) => {
