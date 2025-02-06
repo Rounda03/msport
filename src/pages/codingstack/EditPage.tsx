@@ -6,6 +6,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { User } from "@supabase/supabase-js";
+import EditorProvider from "../../componets/CodeEditor/EditorProvider";
+import CodeEditor from "../../componets/CodeEditor/CodeEditor";
+import FileList from "../../componets/CodeEditor/FileList";
+import CodeView from "../../componets/CodeEditor/CodeView";
 
 interface Props {
     userData?: User;
@@ -114,6 +118,15 @@ const EditPage: React.FC<Props> = ( {userData} ) => {
                 <Button onClick={saveSnippets} variant="contained" color="secondary">
                     Save All Snippets
                 </Button>
+            </Grid>
+            <Grid item xs={12} style={{border:'1px solid black'}}>
+              <EditorProvider>
+                  <div style={{ display: 'flex' }}>
+                      <FileList/>
+                      <CodeEditor/>
+                      <CodeView/>
+                  </div>
+              </EditorProvider>
             </Grid>
             {snippets.filter(snippet => !snippet.is_del).map((snippet, index) => (
                 <Grid item xs={12} key={snippet.id!}>
