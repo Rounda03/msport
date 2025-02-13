@@ -14,16 +14,24 @@ const importMap: ImportMap = {
         ['monaco-editor', 'https://esm.sh/monaco-editor'],
         ['@monaco-editor/react', 'https://esm.sh/@monaco-editor/react?deps=react@18.2.0'],
         ['esbuild-wasm', 'https://esm.sh/esbuild-wasm'],
+        ['styled-components', 'https://esm.sh/styled-components?deps=react@18.2.0'],
+        ['styled-components/', 'https://esm.sh/styled-components/?deps=react@18.2.0'],
     ])
 }
-const virtualFileSystem = new Map<string, string>();
+
 const initializeEsbuild = async () => {
-    await esbuild.initialize({
-        worker: true,
-        // wasmURL: 'node_modules/esbuild-wasm/esbuild.wasm',
-        wasmURL: 'https://esm.sh/esbuild-wasm/esbuild.wasm',
-    });
+    try{
+        await esbuild.initialize({
+            worker: true,
+            // wasmURL: 'node_modules/esbuild-wasm/esbuild.wasm',
+            wasmURL: 'https://esm.sh/esbuild-wasm@0.24.2/esbuild.wasm',
+        });
+    }
+    catch (error) {
+        console.error('esbuild 초기화 오류:', error);
+    }
 };
+
 const createHtml = (code: string, importMap: ImportMap | RecordImportMap) => {
     const defaultImportMap = {
         "imports": {
@@ -62,6 +70,7 @@ const createHtml = (code: string, importMap: ImportMap | RecordImportMap) => {
                        </body>
                    </html>`
 }
+
 //수정 필요 지금 쓸모가 없는 거 그냥 tsx만 내보냄
 function getLoader(filePath: string) {
     const extension = filePath.split('.').pop()?.toLowerCase(); //여기 부분 수정 하면됌
@@ -81,44 +90,49 @@ function getLoader(filePath: string) {
     }
 }
 
-const virtualFsPlugin: esbuild.Plugin = {
-    name: 'virtual-fs',
-    setup(build) {
-        build.onResolve({filter: /.*/}, (args) => {
-            const {path} = args;
+const plugin = (mapData:Map<string, string>): esbuild.Plugin =>{
 
-            if (virtualFileSystem.has(path)) {// 가상파일시스템에 있는 파일
-                return {path, namespace: 'virtual-fs'};
-            }
-            if (path.startsWith('react') || path.startsWith('react-dom')) {// 외부 모듈로 처리 (기본적으로 react, react-dom 만 처리)
-                return {path: path, external: true, namespace: 'virtual-fs'}
-            }
+    const virtualFs: esbuild.Plugin = {
+        name: 'virtual-fs',
+        setup(build) {
+            build.onResolve({filter: /.*/}, (args) => {
+                const {path} = args;
 
-            const importMapPath: string = importMap.imports.get(path) || '';
+                if (mapData.has(path)) {// 가상파일시스템에 있는 파일
+                    return {path, namespace: 'virtual-fs'};
+                }
+                if (path.startsWith('react') || path.startsWith('react-dom')) {// 외부 모듈로 처리 (기본적으로 react, react-dom 만 처리)
+                    return {path: path, external: true, namespace: 'virtual-fs'}
+                }
 
-            if (importMapPath) {
-                return {path: path, external: true, namespace: 'virtual-fs'};
-            }
-            // 외부 모듈로 처리
-            if (path.startsWith('http') || path.startsWith('https')) {
-                return {path, external: true, namespace: 'virtual-fs'};
-            }
+                const importMapPath: string = importMap.imports.get(path) || '';
 
-            return {path: path.split('.')[1], namespace: 'virtual-fs'};
-        });
-        build.onLoad({filter: /.*/, namespace: 'virtual-fs'}, async (args) => {
-            const {path} = args;
-            const fileName = path.split('.')[0] === 'index' ? path : path + '.tsx';
-            const content = virtualFileSystem.get(fileName);
-            if (content) {
-                return {
-                    contents: content,
-                    loader: getLoader(path)
-                };
-            }
-        });
-    }
-};
+                if (importMapPath) {
+                    return {path: path, external: true, namespace: 'virtual-fs'};
+                }
+                // 외부 모듈로 처리
+                if (path.startsWith('http') || path.startsWith('https')) {
+                    return {path, external: true, namespace: 'virtual-fs'};
+                }
+
+                return {path: path.split('.')[1], namespace: 'virtual-fs'};
+            });
+            build.onLoad({filter: /.*/, namespace: 'virtual-fs'}, async (args) => {
+                const {path} = args;
+                const fileName = path.split('.')[0] === 'index' ? path : path + '.tsx';
+                const content = mapData.get(fileName);
+                if (content) {
+                    return {
+                        contents: content,
+                        loader: getLoader(path)
+                    };
+                }
+            });
+        }
+    };
+
+    return virtualFs;
+}
 
 interface IBundler {
     readFile(): Map<string, string>;
@@ -139,25 +153,26 @@ interface IBundler {
 }
 
 class Bundler implements IBundler {
-    private vfs: Map<string, string>;
+    private virtualFileSystem: Map<string, string> = new Map<string, string>();
     private imp;
-
+    static value =0;
     constructor() {
-        this.vfs = virtualFileSystem;
         this.imp = importMap;
-        this.addFile('index.tsx', indexValue);
+        this.addFile('index.tsx', indexCode);
+        Bundler.value++;
+        console.log('Bundler 생성자 호출', Bundler.value);
     }
 
     readFile() {
-        return this.vfs;
+        return this.virtualFileSystem;
     }
 
     addFile(pathName: string, content: string) {
-        this.vfs.set(pathName, content);
+        this.virtualFileSystem.set(pathName, content);
     }
 
     removeFile(pathName: string) {
-        this.vfs.delete(pathName);
+        this.virtualFileSystem.delete(pathName);
     }
 
     getDependencies() {
@@ -182,7 +197,7 @@ class Bundler implements IBundler {
                 entryPoints: [entryPoint],
                 bundle: true,
                 write: false,
-                plugins: [virtualFsPlugin],
+                plugins: [plugin(this.virtualFileSystem)],
                 format: 'esm',
                 target: 'es2022',
                 minify: false,
@@ -207,7 +222,8 @@ class Bundler implements IBundler {
     }
 }
 
-const defaultValue = `import React from 'react'
+/* ---------기본 코드--------- */
+const app_code = `import React from 'react'
 
 const App = () => {
     return (
@@ -219,12 +235,14 @@ const App = () => {
 
 export default App;
 `
-const indexValue = `import { createRoot } from 'react-dom/client';
+const indexCode = `import { createRoot } from 'react-dom/client';
 import React from 'react'
 import App from './App';
 
 createRoot(document.getElementById('root')).render(<App />);
 `;
+/* ---------기본 코드--------- */
+
 export default Bundler;
-export {defaultValue, indexValue, createHtml, initializeEsbuild}
+export {app_code, indexCode, createHtml, initializeEsbuild}
 export type {IBundler, ImportMap}
