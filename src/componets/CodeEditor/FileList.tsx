@@ -1,22 +1,22 @@
-import {useState} from "react";
+import React, {useState} from "react";
 import useEditor from "./hook/useEditor";
 
 const FileList = () => {
     const [pathName, setPathName] = useState<string>('');
     const {useCodeEditor, useFile, addFile,updateFile} = useEditor();
     const {getCode} = useCodeEditor;
-    const {selectFile, selectedFile, fileList,} = useFile;
+    const {selectFile, file, fileList,} = useFile;
 
     return (
         <div>
             <h2>FileList</h2>
             {/*<button onClick={onClick}>코드 저장</button>*/}
             <button onClick={() => {
-                if (!selectedFile) {
+                if (!file) {
                     alert('파일을 선택해주세요');
                     return;
                 }
-                updateFile(selectedFile.fileName, getCode() || '');
+                updateFile(file.fileName, getCode() || '');
             }}>현재 코드 저장
             </button>
             <div>
@@ -46,8 +46,8 @@ const FileList = () => {
                 }
             </div>
             <button onClick={() => console.log(fileList)}>fileList 콘솔</button>
-            <button onClick={() => console.log(selectedFile)}>selectFile 콘솔</button>
+            <button onClick={() => console.log(file)}>selectFile 콘솔</button>
         </div>
     );
 };
-export default FileList;
+export default React.memo(FileList);
