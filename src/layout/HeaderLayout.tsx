@@ -86,6 +86,11 @@ const HeaderLayout: React.FC<HeaderLayoutProps> = ({ children, userId, userAvata
     const openSkillMenu = (event: React.MouseEvent<HTMLElement>) => {
         setSkillMenuAnchorEl(event.currentTarget);
     };
+
+    const closeSkillMenu = (nav : string) => {
+        setSkillMenuAnchorEl(null);
+        navigate(nav);
+    }
     return (
         <div className="header-layout">
             <header className="header">
@@ -134,10 +139,10 @@ const HeaderLayout: React.FC<HeaderLayoutProps> = ({ children, userId, userAvata
                 open={Boolean(skillMenuAnchorEl)}
                 onClose={() => setSkillMenuAnchorEl(null)}
             >
-                <MenuItem onClick={() => navigate('/frontend')}>프론트엔드</MenuItem>
-                <MenuItem onClick={() => navigate('/backend')}>백엔드</MenuItem>
-                <MenuItem onClick={() => navigate('/codeedit')}>테스트코드편집</MenuItem>
-                <MenuItem onClick={() => navigate('/codeview')}>테스트코드보기</MenuItem>
+                <MenuItem onClick={() => closeSkillMenu('/frontend')}>프론트엔드</MenuItem>
+                <MenuItem onClick={() => closeSkillMenu('/backend')}>백엔드</MenuItem>
+                <MenuItem onClick={() => closeSkillMenu('/codeedit')}>테스트코드편집</MenuItem>
+                <MenuItem onClick={() => closeSkillMenu('/codeview')}>테스트코드보기</MenuItem>
             </StyledMenu>
         </div>
     );
