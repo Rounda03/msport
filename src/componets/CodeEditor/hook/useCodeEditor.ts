@@ -1,5 +1,5 @@
 import {Monaco, OnMount} from "@monaco-editor/react";
-import {useRef} from "react";
+import React, {useRef, useState} from "react";
 import * as monaco from "monaco-editor";
 
 export interface UseCodeEditorType {
@@ -8,10 +8,12 @@ export interface UseCodeEditorType {
     getCode: () => (string | undefined);
     handleCodeChange: (newCode: string) => void;
     editorRef: React.MutableRefObject<monaco.editor.IStandaloneCodeEditor | undefined>;
+    loading: boolean;
 }
 
 const useCodeEditor = (): UseCodeEditorType => {
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>();
+    const [loading, setLoading] = useState(true);
 
     const handleCodeChange = (newCode: string) => {
         if (!editorRef.current) return;
@@ -29,6 +31,7 @@ const useCodeEditor = (): UseCodeEditorType => {
     }
     const handleEditorDidMount: OnMount = (editor) => {   // monaco editor 값 가져올수 있게
         editorRef.current = editor;
+        setLoading(false);
         editor.addCommand(
             monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
             () => {
@@ -43,7 +46,7 @@ const useCodeEditor = (): UseCodeEditorType => {
         return editorRef.current?.getValue();
     }
 
-    return {handleEditorWillMount, handleEditorDidMount, getCode,  handleCodeChange, editorRef};
+    return {handleEditorWillMount, handleEditorDidMount, getCode,  handleCodeChange, editorRef, loading};
 }
 
 export default useCodeEditor;

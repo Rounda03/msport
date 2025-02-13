@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useRef, useState} from "react";
 
 interface File {
     fileName: string;
@@ -7,7 +7,8 @@ interface File {
 
 export interface UseFileType {
     fileList: File[];
-    selectedFile: File | undefined;
+    file: File | undefined;
+    fileRef?: React.MutableRefObject<File | undefined>;
     selectFile: (fileName: string) => void;
     mountSetFileList: (fileList: Map<string, string>) => void;
     addNewFile: (fileName: string, code: string) => void;
@@ -18,11 +19,12 @@ export interface UseFileType {
 const useFile = (): UseFileType => {
 
     const [fileList, setFileList] = useState<File[]>([]);
-    const [selectedFile, setSelectedFile] = useState<File>();
-
+    const [file, setFile] = useState<File>();
+    const fileRef = useRef<File>();
     const selectFile = (fileName: string) => {
         const file = fileList.find((file) => file.fileName === fileName);
-        setSelectedFile(file);
+        setFile(file);
+        fileRef.current = file;
     }
     const addNewFile = (fileName: string, code: string) => {
         if (!fileName) return;
@@ -58,7 +60,8 @@ const useFile = (): UseFileType => {
 
     return {
         fileList,
-        selectedFile,
+        file,
+        fileRef,
         selectFile,
         mountSetFileList,
         addNewFile,
